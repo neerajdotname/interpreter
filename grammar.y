@@ -90,12 +90,12 @@ rule
     # method
     IDENTIFIER                    { result = CallNode.new(nil, val[0], []) }
     # method(1, 2, 3)
-  | IDENTIFIER ArgListWithParens    { result = CallNode.new(nil, val[0], val[1]) }
-    # method()
+  | IDENTIFIER ArgListWithParens  { result = CallNode.new(nil, val[0], val[1]) }
+    # receiver.method
   | Expression '.' IDENTIFIER     { result = CallNode.new(val[0], val[2], []) }
     # receiver.method(1, 2, 3)
   | Expression '.' IDENTIFIER
-      ArgListWithParens             { result = CallNode.new(val[0], val[2], val[3]) }
+      ArgListWithParens           { result = CallNode.new(val[0], val[2], val[3]) }
   ;
   
   ArgListWithParens:
