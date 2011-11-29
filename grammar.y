@@ -167,9 +167,9 @@ rule
     END                                 { result = IfNode.new(val[1], val[3], nil) }
   | IF Expression Terminator
       Expressions
-    ELSE
+    ELSE Terminator
       Expressions
-    END                                 { result = IfNode.new(val[1], val[3], val[5]) }
+    END                                 { result = IfNode.new(val[1], val[3], val[6]) }
   ;
 end
 
