@@ -126,6 +126,8 @@ class IfNode
       body.eval(context)
     elsif else_body
       else_body.eval(context)
+    else
+      Runtime["nil"]
     end
   end
 end
