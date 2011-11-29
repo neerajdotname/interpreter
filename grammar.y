@@ -89,17 +89,17 @@ rule
     # method
     IDENTIFIER                    { result = CallNode.new(nil, val[0], []) }
     # method(1, 2, 3)
-  | IDENTIFIER '(' ArgList ')'    { result = CallNode.new(nil, val[0], val[2]) }
+  | IDENTIFIER ArgListWithParens    { result = CallNode.new(nil, val[0], val[1]) }
     # method()
-  | IDENTIFIER '(' ')'            { result = CallNode.new(nil, val[0], []) }
-    # receiver.method
   | Expression '.' IDENTIFIER     { result = CallNode.new(val[0], val[2], []) }
     # receiver.method(1, 2, 3)
   | Expression '.' IDENTIFIER
-      '(' ArgList ')'             { result = CallNode.new(val[0], val[2], val[4]) }
-    # receiver.method()
-  | Expression '.' IDENTIFIER
-      '(' ')'                     { result = CallNode.new(val[0], val[2], []) }
+      ArgListWithParens             { result = CallNode.new(val[0], val[2], val[3]) }
+  ;
+  
+  ArgListWithParens:
+    '(' ')'                             { result = [] }
+  | '(' ArgList ')'                     { result = val[1] }
   ;
   
   ArgList:
