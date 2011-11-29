@@ -90,11 +90,16 @@ rule
     IDENTIFIER                    { result = CallNode.new(nil, val[0], []) }
     # method(1, 2, 3)
   | IDENTIFIER '(' ArgList ')'    { result = CallNode.new(nil, val[0], val[2]) }
+    # method()
+  | IDENTIFIER '(' ')'            { result = CallNode.new(nil, val[0], []) }
     # receiver.method
   | Expression '.' IDENTIFIER     { result = CallNode.new(val[0], val[2], []) }
     # receiver.method(1, 2, 3)
   | Expression '.' IDENTIFIER
       '(' ArgList ')'             { result = CallNode.new(val[0], val[2], val[4]) }
+    # receiver.method()
+  | Expression '.' IDENTIFIER
+      '(' ')'                     { result = CallNode.new(val[0], val[2], []) }
   ;
   
   ArgList:
