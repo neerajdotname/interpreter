@@ -117,6 +117,8 @@ rule
   | Expression '>=' Expression    { result = CallNode.new(val[0], val[1], [val[2]]) }
   | Expression '<' Expression     { result = CallNode.new(val[0], val[1], [val[2]]) }
   | Expression '<=' Expression    { result = CallNode.new(val[0], val[1], [val[2]]) }
+    # 1 + 2 => 1.+(2)
+    #   1       +       2                                   1       "+"      [2]
   | Expression '+' Expression     { result = CallNode.new(val[0], val[1], [val[2]]) }
   | Expression '-' Expression     { result = CallNode.new(val[0], val[1], [val[2]]) }
   | Expression '*' Expression     { result = CallNode.new(val[0], val[1], [val[2]]) }
