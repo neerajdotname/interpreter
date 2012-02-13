@@ -42,21 +42,16 @@ rule
   # - Assign to "result" the value returned by the rule.
   # - Use val[index of expression] to reference expressions on the left.
   
-  
-  # All parsing will end in this rule, being the trunk of the AST.
-  Root:
-    Expressions
-  ;
-  
   # Any list of expressions, class or method body, separated by line breaks.
+  # All parsing begins in this rule.
   Expressions:
     /* nothing */                      { result = Nodes.new([]) }
-  | ExpressionList
   | Terminator                         { result = Nodes.new([]) }
+  | ExpressionList                     { result = Nodes.new(val[0]) }
   ;
   
   ExpressionList:
-    Expression                            { result = Nodes.new(val) }
+    Expression                            { result = [ val[0] ] }
   | ExpressionList Terminator Expression  { result = val[0] << val[2] }
     # To ignore trailing line breaks
   | ExpressionList Terminator             { result = val[0] }
@@ -79,7 +74,7 @@ rule
   | Class
   | If
   | While
-  | '(' Expression ')'    { result = val[1] }
+  | '(' Expression ')'            { result = val[1] }
   ;
   
   # All hard-coded values
@@ -93,19 +88,16 @@ rule
   
   # Method call
   Call:
-    # method
-    IDENTIFIER                    { result = CallNode.new(nil, val[0], []) }
     # method(1, 2, 3)
-  | IDENTIFIER Arguments          { result = CallNode.new(nil, val[0], val[1]) }
-    # receiver.method
-  | Expression '.' IDENTIFIER     { result = CallNode.new(val[0], val[2], []) }
+    IDENTIFIER Arguments          { result = CallNode.new(nil, val[0], val[1]) }
     # receiver.method(1, 2, 3)
   | Expression '.' IDENTIFIER
       Arguments                   { result = CallNode.new(val[0], val[2], val[3]) }
   ;
   
   Arguments:
-    '(' ')'                       { result = [] }
+    /* nothing */                 { result = [] }
+  | '(' ')'                       { result = [] }
   | '(' ArgList ')'               { result = val[1] }
   ;
   
@@ -134,24 +126,26 @@ rule
   | '!' Expression                { result = CallNode.new(val[1], val[0], []) }
   ;
   
-  # Assigment to a local variable
+  # Assignment to a local variable
   Assign:
     IDENTIFIER "=" Expression     { result = AssignNode.new(val[0], val[2]) }
   ;
   
   # Method definition
   Def:
-    DEF IDENTIFIER Terminator
+    DEF IDENTIFIER Parameters Terminator
       Expressions
-    END                           { result = DefNode.new(val[1], [], val[3]) }
-  | DEF IDENTIFIER "(" ParamList ")" Terminator
-      Expressions
-    END                           { result = DefNode.new(val[1], val[3], val[6]) }
+    END                           { result = DefNode.new(val[1], val[2], val[4]) }
+  ;
+  
+  Parameters:
+    /* nothing */                 { result = [] }
+  | '(' ')'                       { result = [] }
+  | '(' ParamList ')'             { result = val[1] }
   ;
 
   ParamList:
-    /* nothing */                 { result = [] }
-  | IDENTIFIER                    { result = val }
+    IDENTIFIER                    { result = val }
   | ParamList "," IDENTIFIER      { result = val[0] << val[2] }
   ;
   
