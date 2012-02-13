@@ -45,17 +45,21 @@ rule
   
   # All parsing will end in this rule, being the trunk of the AST.
   Root:
-    /* nothing */                      { result = Nodes.new([]) }
-  | Expressions                        { result = val[0] }
+    Expressions
   ;
   
   # Any list of expressions, class or method body, separated by line breaks.
   Expressions:
-    Expression                         { result = Nodes.new(val) }
-  | Expressions Terminator Expression  { result = val[0] << val[2] }
-    # To ignore trailing line breaks
-  | Expressions Terminator             { result = val[0] }
+    /* nothing */                      { result = Nodes.new([]) }
+  | ExpressionList
   | Terminator                         { result = Nodes.new([]) }
+  ;
+  
+  ExpressionList:
+    Expression                            { result = Nodes.new(val) }
+  | ExpressionList Terminator Expression  { result = val[0] << val[2] }
+    # To ignore trailing line breaks
+  | ExpressionList Terminator             { result = val[0] }
   ;
   
   # All tokens that can terminate an expression
@@ -92,17 +96,17 @@ rule
     # method
     IDENTIFIER                    { result = CallNode.new(nil, val[0], []) }
     # method(1, 2, 3)
-  | IDENTIFIER ArgListWithParens  { result = CallNode.new(nil, val[0], val[1]) }
+  | IDENTIFIER Arguments          { result = CallNode.new(nil, val[0], val[1]) }
     # receiver.method
   | Expression '.' IDENTIFIER     { result = CallNode.new(val[0], val[2], []) }
     # receiver.method(1, 2, 3)
   | Expression '.' IDENTIFIER
-      ArgListWithParens           { result = CallNode.new(val[0], val[2], val[3]) }
+      Arguments                   { result = CallNode.new(val[0], val[2], val[3]) }
   ;
   
-  ArgListWithParens:
-    '(' ')'                             { result = [] }
-  | '(' ArgList ')'                     { result = val[1] }
+  Arguments:
+    '(' ')'                       { result = [] }
+  | '(' ArgList ')'               { result = val[1] }
   ;
   
   ArgList:
@@ -166,18 +170,18 @@ rule
   If:
     IF Expression Terminator
       Expressions
-    END                                 { result = IfNode.new(val[1], val[3], nil) }
+    END                           { result = IfNode.new(val[1], val[3], nil) }
   | IF Expression Terminator
       Expressions
     ELSE Terminator
       Expressions
-    END                                 { result = IfNode.new(val[1], val[3], val[6]) }
+    END                           { result = IfNode.new(val[1], val[3], val[6]) }
   ;
   
   While:
     WHILE Expression Terminator
       Expressions
-    END                                 { result = WhileNode.new(val[1], val[3]) }
+    END                           { result = WhileNode.new(val[1], val[3]) }
   ;
 end
 
