@@ -6,16 +6,16 @@ require "runtime/context"
 # Bootstrap the runtime. This is where we assemble all the classes and objects together
 # to form the runtime.
 
-                                     # what happens in the runtime
-rclass = RClass.new                  # Class
-rclass.runtime_class = rclass        # Class.class = Class
-object_class = RClass.new            # Object = Class.new
-object_class.runtime_class = rclass  # Object.class = Class
+                                            # what happens in the runtime
+RuntimeClass = RClass.new                   # Class
+RuntimeClass.runtime_class = RuntimeClass   # Class.class = Class
+RuntimeObject = RClass.new                  # Object = Class.new
+RuntimeObject.runtime_class = RuntimeClass  # Object.class = Class
 
-Runtime = Context.new(object_class.new) # Object.new
+Runtime = Context.new(RuntimeObject.new) # Object.new
 
-Runtime["Class"] = rclass
-Runtime["Object"] = object_class
+Runtime["Class"] = RuntimeClass
+Runtime["Object"] = RuntimeObject
 Runtime["Number"] = RClass.new
 Runtime["String"] = RClass.new
 Runtime["TrueClass"] = RClass.new
@@ -27,18 +27,18 @@ Runtime["false"] = Runtime["FalseClass"].new_with_value(false)
 Runtime["nil"] = Runtime["NilClass"].new_with_value(nil)
 
 # Object.new
-Runtime["Class"].runtime_methods["new"] = proc do |receiver, arguments|
+Runtime["Class"].def :new do |receiver, arguments|
   receiver.new
 end
 
 # print("hi")
-Runtime["Object"].runtime_methods["print"] = proc do |receiver, arguments|
+Runtime["Object"].def :print do |receiver, arguments|
   puts arguments.first.ruby_value
   Runtime["nil"]
 end
 
 # 1 + 2
-Runtime["Number"].runtime_methods["+"] = proc do |receiver, arguments|
+Runtime["Number"].def :+ do |receiver, arguments|
   a = receiver.ruby_value
   b = arguments.first.ruby_value
   Runtime["Number"].new_with_value a + b
@@ -46,7 +46,7 @@ end
 
 # 1 < 2
 # 1.<(2)
-Runtime["Number"].runtime_methods["<"] = proc do |receiver, arguments|
+Runtime["Number"].def :< do |receiver, arguments|
   a = receiver.ruby_value
   b = arguments.first.ruby_value
   a < b ? Runtime["true"] : Runtime["false"]
