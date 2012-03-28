@@ -37,9 +37,18 @@ Runtime["Object"].def :print do |receiver, arguments|
   Runtime["nil"]
 end
 
+# 1 + 2
 # 1.+(2)
 Runtime["Number"].def :+ do |receiver, arguments|
   a = receiver.ruby_value
   b = arguments.first.ruby_value
   Runtime["Number"].new_with_value(a + b)
+end
+
+# 1 < 2
+# 1.<(2)
+Runtime["Number"].def :< do |receiver, arguments|
+  a = receiver.ruby_value
+  b = arguments.first.ruby_value
+  a < b ? Runtime["true"] : Runtime["false"]
 end
